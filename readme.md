@@ -1,0 +1,1 @@
+This is mostly not mine. It's a copy of the github.com/gorilla/websockets chat example modified with a canvas so people can draw collaboratively. It uses the PICO-8 color palette. Inspired by r/place.
