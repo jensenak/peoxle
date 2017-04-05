@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Peoxle</title>
+    <script type="text/javascript">
+        window.onload = function () {
+            var conn;
+            var cnv = document.getElementById('canvas');
+            var ctx = cnv.getContext('2d');
+            var rect = cnv.getBoundingClientRect();
+            var x = document.getElementById('x');
+            var y = document.getElementById('y');
+            ctx.fillStyle = '#000000';
+
+            function drawPixel(dot) {
+                ctx.fillRect(dot[0], dot[1], 2, 2);
+            }
+
+            function setColor(color) {
+                ctx.fillStyle = color;
+            }
+
+            cnv.addEventListener('click', function(evt) {
+                evt.preventDefault();
+                if (conn) {
+                    conn.send(JSON.stringify({
+                        where: [evt.clientX - rect.left, evt.clientY - rect.top],
+                        what: ctx.fillStyle
+                    }));
+                }
+                return false;
+            });
+            cnv.addEventListener('mousemove', function(evt) {
+                x.textContent = evt.clientX - rect.left;
+                y.textContent = evt.clientY - rect.top;
+            });
+
+            var colors = document.getElementsByClassName('color-box');
+
+            for (var c = 0; c < colors.length; c++) {
+                colors[c].addEventListener('click', function (evt) {
+                       for (var j = 0; j < colors.length; j++) {
+                           colors[j].style.border = "none";
+                       }
+                       evt.target.style.border = '2px dotted white';
+                       var m = document.defaultView.getComputedStyle(evt.target, null).getPropertyValue('background-color');
+                       setColor(m);
+                });
+            }
+
+            if (window["WebSocket"]) {
+                conn = new WebSocket("ws://" + document.location.host + "/ws");
+                conn.onclose = function (evt) {
+                    alert("Connection Lost");
+                };
+                conn.onmessage = function (evt) {
+                    var dots = JSON.parse(evt.data);
+                    setColor(dots.what);
+                    drawPixel(dots.where);
+                };
+            } else {
+                alert("Your browser doesn't support WebSockets");
+            }
+        };
+    </script>
+    <style type="text/css">
+        canvas {
+            border: 1px solid black;
+        }
+        .color-box {
+            width: 50px;
+            height: 50px;
+            display: inline-block;
+        }
+        .coord-box {
+            width: 80px;
+            height: 80px;
+            display: inline-block;
+            vertical-align: top;
+            color: #888;
+            font: 2em "Open Sans", sans-serif;
+        }
+        /*
+         PICO-8 Palette by Joseph White, used under CC-0
+         www.lexaloffle.com/pico-8.php
+         */
+        .black       { background-color: #000000; }
+        .dark-blue   { background-color: #1D2B53; }
+        .dark-purple { background-color: #7E2553; }
+        .dark-green  { background-color: #008751; }
+        .brown       { background-color: #AB5236; }
+        .dark-gray   { background-color: #5F574F; }
+        .light-gray  { background-color: #C2C3C7; }
+        .white       { background-color: #FFF1E8; }
+        .red         { background-color: #FF004D; }
+        .orange      { background-color: #FFA300; }
+        .yellow      { background-color: #FFEC27; }
+        .green       { background-color: #00E436; }
+        .blue        { background-color: #29ADFF; }
+        .indigo      { background-color: #83769C; }
+        .pink        { background-color: #FF77A8; }
+        .peach       { background-color: #FFCCAA; }
+    </style>
+</head>
+<body>
+<canvas width="1000px" height="1000px" id="canvas"></canvas>
+<div>
+    <span class="color-box black" style="border: 2px dotted white"></span>
+    <span class="color-box dark-blue"></span>
+    <span class="color-box dark-purple"></span>
+    <span class="color-box dark-green"></span>
+    <span class="color-box brown"></span>
+    <span class="color-box dark-gray"></span>
+    <span class="color-box light-gray"></span>
+    <span class="color-box white"></span>
+    <span class="color-box red"></span>
+    <span class="color-box orange"></span>
+    <span class="color-box yellow"></span>
+    <span class="color-box green"></span>
+    <span class="color-box blue"></span>
+    <span class="color-box indigo"></span>
+    <span class="color-box pink"></span>
+    <span class="color-box peach"></span>
+    <span id="x" class="coord-box"></span>
+    <span id="y" class="coord-box"></span>
+</div>
+</body>
+</html>
